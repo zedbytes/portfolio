@@ -47,7 +47,8 @@ const executor: FetcherExecutor = async (owner: string, cache: Cache) => {
   const firstResults = await client.multicall({
     contracts: proxyAddresses.map((address) => ({
       abi: cdpManagerAbi,
-      address: cdpManagerAddress,
+      address: cdpManagerAddress as `0x${string}`,
+
       functionName: 'first',
       args: [address as `0x${string}`],
     })),
@@ -56,15 +57,16 @@ const executor: FetcherExecutor = async (owner: string, cache: Cache) => {
   let step = 0;
   firstResults.forEach((firstResult) => {
     if (!firstResult.result || firstResult.result === zeroBigInt) return;
-    nexts.push(firstResult.result);
-    cdps.push(firstResult.result);
+    nexts.push(firstResult.result as bigint);
+    cdps.push(firstResult.result as bigint);
   });
   while (nexts.length !== 0 || step < 50) {
     step += 1;
     const listResults = await client.multicall({
       contracts: nexts.map((cdp) => ({
         abi: cdpManagerAbi,
-        address: cdpManagerAddress,
+        address: cdpManagerAddress as `0x${string}`,
+
         functionName: 'list',
         args: [cdp],
       })),
@@ -72,26 +74,27 @@ const executor: FetcherExecutor = async (owner: string, cache: Cache) => {
     nexts = [];
     for (let i = 0; i < listResults.length; i++) {
       const listResult = listResults[i];
-      if (!listResult.result || listResult.result[1] === zeroBigInt) continue;
-      nexts.push(listResult.result[1]);
-      cdps.push(listResult.result[1]);
+      if (!listResult.result) continue;
+      const result = listResult.result as unknown as [bigint, bigint];
+      if (result[1] === zeroBigInt) continue;
+      nexts.push(result[1]);
+      cdps.push(result[1]);
     }
   }
   if (cdps.length === 0) return [];
-
   const urnsResults = await client.multicall({
     contracts: cdps.map((cdp) => ({
       abi: cdpManagerAbi,
-      address: cdpManagerAddress,
+      address: cdpManagerAddress as `0x${string}`,
       functionName: 'urns',
-      args: [cdp],
+      args: [cdp as unknown as `0x${string}`],
     })),
   });
 
   const urnsAddresses = urnsResults.reduce(
     (acc: `0x${string}`[], urnsResult) => {
       if (!urnsResult.result) return acc;
-      acc.push(urnsResult.result);
+      acc.push(urnsResult.result as `0x${string}`);
       return acc;
     },
     []
@@ -116,7 +119,7 @@ const executor: FetcherExecutor = async (owner: string, cache: Cache) => {
     const inkAndArtResults = await client.multicall({
       contracts: argss.map((args) => ({
         abi: vatAbi,
-        address: vatAddress,
+        address: vatAddress as `0x${string}`,
         functionName: 'urns',
         args,
       })),

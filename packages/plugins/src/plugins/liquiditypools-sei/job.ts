@@ -1,4 +1,4 @@
-import { getCosmWasmClient } from '@sei-js/core';
+import { SeiCosmWasmClient } from '@sei-js/core';
 import { NetworkId } from '@sonarwatch/portfolio-core';
 import BigNumber from 'bignumber.js';
 import { Cache } from '../../Cache';
@@ -16,9 +16,8 @@ import { getDecimalsForToken } from '../../utils/misc/getDecimalsForToken';
 import getLpUnderlyingTokenSourceOld from '../../utils/misc/getLpUnderlyingTokenSourceOld';
 import getLpTokenSourceRawOld from '../../utils/misc/getLpTokenSourceRawOld';
 import { PlatformContracts } from './types';
-
 const executor: JobExecutor = async (cache: Cache) => {
-  const cosmWasmClient = await getCosmWasmClient(getUrlEndpoint(NetworkId.sei));
+  const cosmWasmClient: SeiCosmWasmClient = await SeiCosmWasmClient.connect(getUrlEndpoint(NetworkId.sei));
 
   const pushedContractsByPlatform: Map<string, string[]> = new Map();
   for (const liquidityPoolInfo of liquidityPoolsInfos) {

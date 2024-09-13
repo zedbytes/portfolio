@@ -1,6 +1,6 @@
 import { NetworkId, NetworkIdType } from '@sonarwatch/portfolio-core';
 import { PublicKey } from '@solana/web3.js';
-import { getCosmWasmClient } from '@sei-js/core';
+import { SeiCosmWasmClient } from '@sei-js/core';
 import {
   getClientAptos,
   getClientSei,
@@ -51,7 +51,7 @@ export async function getDecimalsForToken(
         return null;
       }
       if (address.startsWith('sei')) {
-        const client = await getCosmWasmClient(getUrlEndpoint(NetworkId.sei));
+        const client = await SeiCosmWasmClient.connect(getUrlEndpoint(NetworkId.sei));
         const tokenInfo = (await client.queryContractSmart(
           address,
           tokenInfoQueryMsg

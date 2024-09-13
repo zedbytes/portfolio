@@ -5,7 +5,7 @@ import {
   PortfolioLiquidity,
   getUsdValueSum,
 } from '@sonarwatch/portfolio-core';
-import { getCosmWasmClient } from '@sei-js/core';
+import { SeiCosmWasmClient } from '@sei-js/core';
 import BigNumber from 'bignumber.js';
 import { Cache } from '../../Cache';
 import { Fetcher, FetcherExecutor } from '../../Fetcher';
@@ -15,9 +15,8 @@ import tokenPriceToAssetTokens from '../../utils/misc/tokenPriceToAssetTokens';
 import getQueryBalanceByOwner from '../../utils/sei/getQueryBalanceByOwner';
 import { Balance } from '../../utils/sei';
 import { liquidityPoolsKey } from './constants';
-
 const executor: FetcherExecutor = async (owner: string, cache: Cache) => {
-  const cosmWasmClient = await getCosmWasmClient(getUrlEndpoint(NetworkId.sei));
+  const cosmWasmClient: SeiCosmWasmClient = await SeiCosmWasmClient.connect(getUrlEndpoint(NetworkId.sei));
 
   const contractsByPlatform: Map<string, string[]> = new Map();
   const platformsContracts = await cache.getItem<PlatformContracts[]>(

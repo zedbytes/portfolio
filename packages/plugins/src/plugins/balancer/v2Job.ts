@@ -99,7 +99,7 @@ const executor: JobExecutor = async (cache: Cache) => {
         underlyings,
       };
       await cache.setTokenPriceSource(source);
-      const gauges = gaugesByPool[lpAddress] || [];
+      const gauges = (gaugesByPool && gaugesByPool[lpAddress]) || [];
       gGaugesByPool[lpAddress] = gauges;
     }
     await cache.setItem(poolsAndGaugesV2CacheKey, gGaugesByPool, {

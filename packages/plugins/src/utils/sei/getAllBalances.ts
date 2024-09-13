@@ -1,7 +1,4 @@
-import {
-  QueryAllBalancesRequest,
-  QueryAllBalancesResponse,
-} from '@sei-js/proto/dist/types/codegen/cosmos/bank/v1beta1/query';
+import { QueryAllBalancesRequest, QueryAllBalancesResponse } from 'cosmjs-types/cosmos/bank/v1beta1/query';
 import Long from 'long';
 
 const maxBalances = 1500;
@@ -22,15 +19,15 @@ export async function getAllBalances(allBalances: AllBalances, owner: string) {
       pagination: {
         countTotal: true,
         key,
-        limit,
-        offset,
+        limit: BigInt(limit.toString()),
+        offset: BigInt(offset.toString()),
         reverse: false,
       },
     });
     balances.push(...res.balances);
-    nextKey = res.pagination.nextKey as Uint8Array | null;
+    nextKey = res.pagination?.nextKey as Uint8Array | null;
     offset = offset.add(limit);
-    if (offset.greaterThanOrEqual(res.pagination.total)) break;
-  } while (nextKey !== null && offset.lt(maxBalances));
+    if (offset.greaterThanOrEqual(Long.fromString(res.pagination?.total?.toString() || '0'))) break;
+  } while (nextKey !== null && offset.lt(Long.fromNumber(maxBalances)));
   return balances;
 }

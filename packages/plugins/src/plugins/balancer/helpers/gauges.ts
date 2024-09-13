@@ -13,7 +13,7 @@ import { GaugesByPool } from '../types';
 export async function getBalancerGaugesV2(
   gaugesUrl: string,
   networkId: NetworkIdType
-): Promise<GaugesByPool> {
+): Promise<GaugesByPool | null> {
   if (networkId === NetworkId.ethereum) return getBalancerEthGaugesV2();
   return getBalancerChildGaugesV2(gaugesUrl);
 }
@@ -34,40 +34,40 @@ async function getBalancerEthGaugesV2() {
     functionName: 'n_gauges',
   });
 
-  const gaugesRes = await client.multicall({
-    contracts: rangeBI(nGauges).map((i) => ({
-      abi,
-      address: ethGaugeControllerAddress,
-      functionName: 'gauges',
-      args: [i],
-    })),
-  });
+  // const gaugesRes = await client.multicall({
+  //   contracts: rangeBI(nGauges).map((i) => ({
+  //     abi,
+  //     address: ethGaugeControllerAddress,
+  //     functionName: 'gauges',
+  //     args: [i],
+  //   })),
+  // });
 
-  const lpTokensRes = await client.multicall({
-    contracts: gaugesRes.map((g) => ({
-      abi,
-      address: g.result || zeroAddressEvm,
-      functionName: 'lp_token',
-    })),
-  });
+  // const lpTokensRes = await client.multicall({
+  //   contracts: gaugesRes.map((g) => ({
+  //     abi,
+  //     address: g.result || zeroAddressEvm,
+  //     functionName: 'lp_token',
+  //   })),
+  // });
 
-  const gaugesByPool: GaugesByPool = {};
-  lpTokensRes.forEach((lpTokenRes, i) => {
-    if (lpTokenRes.status === 'failure') return;
-    const gaugeRes = gaugesRes[i];
-    if (gaugeRes.status === 'failure') return;
+  // const gaugesByPool: GaugesByPool = {};
+  // lpTokensRes.forEach((lpTokenRes, i) => {
+  //   if (lpTokenRes.status === 'failure') return;
+  //   const gaugeRes = gaugesRes[i];
+  //   if (gaugeRes.status === 'failure') return;
 
-    const lpAddress = formatTokenAddress(lpTokenRes.result, NetworkId.ethereum);
-    const gaugeAddress = formatTokenAddress(
-      gaugeRes.result,
-      NetworkId.ethereum
-    );
+  //   const lpAddress = formatTokenAddress(lpTokenRes.result, NetworkId.ethereum);
+  //   const gaugeAddress = formatTokenAddress(
+  //     gaugeRes.result,
+  //     NetworkId.ethereum
+  //   );
 
-    if (lpAddress === zeroAddressEvm) return;
-    if (!gaugesByPool[lpAddress]) {
-      gaugesByPool[lpAddress] = [];
-    }
-    gaugesByPool[lpAddress].push(gaugeAddress);
-  });
-  return gaugesByPool;
+  //   if (lpAddress === zeroAddressEvm) return;
+  //   if (!gaugesByPool[lpAddress]) {
+  //     gaugesByPool[lpAddress] = [];
+  //   }
+  //   gaugesByPool[lpAddress].push(gaugeAddress);
+  // });
+  return null;
 }

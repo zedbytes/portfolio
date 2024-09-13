@@ -17,7 +17,8 @@ const executor: JobExecutor = async (cache: Cache) => {
   const ilkDataResults = await client.multicall({
     contracts: ilkList.map((ilk) => ({
       abi: ilkRegAbi,
-      address: ilkRegAddress,
+      address: ilkRegAddress as `0x${string}`,
+
       functionName: 'ilkData',
       args: [ilk],
     })),
@@ -26,7 +27,8 @@ const executor: JobExecutor = async (cache: Cache) => {
   const vatIlkDataResults = await client.multicall({
     contracts: ilkList.map((ilk) => ({
       abi: vatAbi,
-      address: vatAddress,
+      address: vatAddress as `0x${string}`,
+
       functionName: 'ilks',
       args: [ilk],
     })),
@@ -41,22 +43,23 @@ const executor: JobExecutor = async (cache: Cache) => {
     )
       return acc;
 
+    const result = ilkDataResult.result as [string, string, string, string, string, string, string, string, string];
     acc.push({
       id: ilkList[index],
-      pos: Number(ilkDataResult.result[0]),
-      join: ilkDataResult.result[1],
-      gem: ilkDataResult.result[2],
-      dec: Number(ilkDataResult.result[3]),
-      class: Number(ilkDataResult.result[4]),
-      pip: ilkDataResult.result[5],
-      xlip: ilkDataResult.result[6],
-      name: ilkDataResult.result[7],
-      symbol: ilkDataResult.result[8],
-      art: vatIlkDataResult.result[0].toString(),
-      rate: vatIlkDataResult.result[1].toString(),
-      spot: vatIlkDataResult.result[2].toString(),
-      line: vatIlkDataResult.result[3].toString(),
-      dust: vatIlkDataResult.result[4].toString(),
+      pos: Number(BigInt((ilkDataResult.result as readonly string[])[0])),
+      join: (ilkDataResult.result as readonly string[])[1],
+      gem: result[2],
+      dec: Number(result[3]),
+      class: Number(result[4]),
+      pip: result[5],
+      xlip: result[6],
+      name: result[7],
+      symbol: result[8],
+      art: (vatIlkDataResult.result as unknown as [bigint, bigint, bigint, bigint, bigint])[0].toString(),
+      rate: (vatIlkDataResult.result as unknown as [bigint, bigint, bigint, bigint, bigint])[1].toString(),
+      spot: (vatIlkDataResult.result as unknown as [bigint, bigint, bigint, bigint, bigint])[2].toString(),
+      line: (vatIlkDataResult.result as unknown as [bigint, bigint, bigint, bigint, bigint])[3].toString(),
+      dust: (vatIlkDataResult.result as unknown as [bigint, bigint, bigint, bigint, bigint])[4].toString(),
     });
     return acc;
   }, []);

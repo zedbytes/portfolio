@@ -11,12 +11,12 @@ import { Cache } from '../../../Cache';
 import { Fetcher, FetcherExecutor } from '../../../Fetcher';
 import { walletTokensPlatform } from '../constants';
 import { getClientSei } from '../../../utils/clients';
-import { getAllBalances } from '../../../utils/sei';
+import { AllBalances, getAllBalances } from '../../../utils/sei';
 
 const executor: FetcherExecutor = async (owner: string, cache: Cache) => {
   const client = await getClientSei();
   const balances = await getAllBalances(
-    client.cosmos.bank.v1beta1.allBalances,
+    client.cosmos.bank.v1beta1.allBalances as unknown as AllBalances,
     owner
   );
   if (balances.length === 0) return [];
